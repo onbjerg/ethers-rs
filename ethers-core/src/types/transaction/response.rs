@@ -157,7 +157,8 @@ impl Transaction {
                 rlp_opt(&mut rlp, &self.to);
                 rlp.append(&self.value);
                 rlp.append(&self.input.as_ref());
-                rlp.append(&self.access_list);
+                rlp_opt(&mut rlp, &self.access_list);
+                rlp.append(&(*&self.v.as_u64() != 0));
             }
             // EIP-1559 (0x02)
             Some(x) if x == U64::from(2) => {
@@ -169,7 +170,8 @@ impl Transaction {
                 rlp_opt(&mut rlp, &self.to);
                 rlp.append(&self.value);
                 rlp.append(&self.input.as_ref());
-                rlp.append(&self.access_list);
+                rlp_opt(&mut rlp, &self.access_list);
+                rlp.append(&(*&self.v.as_u64() != 0));
             }
             // Legacy (0x00)
             _ => {
@@ -183,12 +185,14 @@ impl Transaction {
                 rlp_opt(&mut rlp, &self.to);
                 rlp.append(&self.value);
                 rlp.append(&self.input.as_ref());
+                rlp.append(&self.v);
             }
         }
 
-        rlp.append(&self.v);
         rlp.append(&self.r);
         rlp.append(&self.s);
+
+        rlp.finalize_unbounded_list();
 
         let rlp_bytes: Bytes = rlp.out().freeze().into();
         let mut encoded = vec![];
