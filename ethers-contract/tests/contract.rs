@@ -191,30 +191,6 @@ mod eth_tests {
         let value =
             contract.method::<_, String>("getValue", ()).unwrap().legacy().call().await.unwrap();
         assert_eq!(value, "hi");
-
-        // assert previous value
-        let value = contract
-            .method::<_, String>("getValue", ())
-            .unwrap()
-            .legacy()
-            .block(BlockId::Number(deployed_block.into()))
-            .call()
-            .await
-            .unwrap();
-        assert_eq!(value, "initial value");
-
-        // Here would be the place to test EIP-1898, specifying the `BlockId` of `call` as the
-        // first block hash. However, Ganache does not implement this :/
-
-        // let hash = client.get_block(1).await.unwrap().unwrap().hash.unwrap();
-        // let value = contract
-        //     .method::<_, String>("getValue", ())
-        //     .unwrap()
-        //     .block(BlockId::Hash(hash))
-        //     .call()
-        //     .await
-        //     .unwrap();
-        // assert_eq!(value, "initial value");
     }
 
     #[tokio::test]
@@ -241,16 +217,16 @@ mod eth_tests {
         let value = contract.method::<_, String>("getValue", ()).unwrap().call().await.unwrap();
         assert_eq!(value, "hi");
 
-        // assert previous value using block hash
-        let hash = client.get_block(deployed_block).await.unwrap().unwrap().hash.unwrap();
-        let value = contract
-            .method::<_, String>("getValue", ())
-            .unwrap()
-            .block(BlockId::Hash(hash))
-            .call()
-            .await
-            .unwrap();
-        assert_eq!(value, "initial value");
+        // // assert previous value using block hash
+        // let hash = client.get_block(deployed_block).await.unwrap().unwrap().hash.unwrap();
+        // let value = contract
+        //     .method::<_, String>("getValue", ())
+        //     .unwrap()
+        //     .block(BlockId::Hash(hash))
+        //     .call()
+        //     .await
+        //     .unwrap();
+        // assert_eq!(value, "initial value");
     }
 
     #[tokio::test]
@@ -490,7 +466,7 @@ mod eth_tests {
         let addrs = anvil.addresses();
         // query ETH balances of multiple addresses
         // these keys haven't been used to do any tx
-        // so should have 100 ETH
+        // so should have 10000 ETH, Anvil's default balance
         multicall
             .clear_calls()
             .eth_balance_of(addrs[4])
@@ -498,9 +474,9 @@ mod eth_tests {
             .eth_balance_of(addrs[6]);
 
         let balances: (U256, U256, U256) = multicall.call().await.unwrap();
-        assert_eq!(balances.0, U256::from(100_000_000_000_000_000_000u128));
-        assert_eq!(balances.1, U256::from(100_000_000_000_000_000_000u128));
-        assert_eq!(balances.2, U256::from(100_000_000_000_000_000_000u128));
+        assert_eq!(balances.0, U256::from(10_000_000_000_000_000_000_000u128));
+        assert_eq!(balances.1, U256::from(10_000_000_000_000_000_000_000u128));
+        assert_eq!(balances.2, U256::from(10_000_000_000_000_000_000_000u128));
 
         // clear multicall so we can test `call_raw` w/ >16 calls
         multicall.clear_calls();
